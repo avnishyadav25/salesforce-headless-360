@@ -3,9 +3,8 @@
 Files, snippets and line references to quote, plus the screenshots to capture when you run the demo.
 Line numbers match the commit that added the Day 10 workflow; re-check them if you edit the files.
 
-Day 10 is "Build Your First AI + Salesforce Workflow" (the meeting prep brief below). I don't have the outline for
-the other days, so the Apex and OAuth sections are grouped by topic (custom Apex as a hosted MCP tool; calling
-hosted MCP from the Claude API securely). Move items between them to match your plan.
+Sections follow the published series: Day 10 (the meeting prep brief), Day 12 (custom Apex tools), Days 5 and 11
+(OAuth and token handling) and Day 15 (the complete assistant).
 
 ## Day 15: Build a Complete Headless Salesforce AI Assistant
 
@@ -61,7 +60,7 @@ markdown sections that cite record Ids), fixed tools (read-only, so no approval 
 **Numbers worth stating:** 60 s default deadline; 2 retries (3 attempts); 5 fixed sections; account names up to
 120 characters; 11 brief tests (50 in total); 0 write tools enabled.
 
-## Custom Apex as a hosted MCP tool (day to be confirmed)
+## Day 12: Custom MCP Tools + Apex/Flow Business Logic
 
 | Quote | File and lines | Point to make |
 | --- | --- | --- |
@@ -76,7 +75,7 @@ markdown sections that cite record Ids), fixed tools (read-only, so no approval 
 | Least-privilege permission set | `salesforce/force-app/main/default/permissionsets/Headless_Assistant_User.permissionset-meta.xml` | Class access, Flow access, API Enabled, Edit Tasks, read on 3 objects. |
 | Apex tests | `AccountHealthToolTest.cls` 48-75, 170-186; `CreateFollowUpTaskToolTest.cls` 77-108, 133-151 | `Test.startTest()`, `Assert.*`, and `System.runAs` a Minimum Access user to show permissions apply. |
 
-## Day 12 (suggested): Secure OAuth + calling hosted MCP from the Claude API
+## Days 5 and 11: OAuth with PKCE, and calling hosted MCP from the Claude API securely
 
 | Quote | File and lines | Point to make |
 | --- | --- | --- |
