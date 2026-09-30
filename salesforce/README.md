@@ -49,11 +49,11 @@ sf org assign permset --name Headless_Assistant_User --target-org headless360
 Two demo accounts give the tools and the series walkthroughs predictable results. Run this only in a Developer Edition or sandbox org:
 
 ```bash
-sf apex run --file scripts/apex/seed-demo-data.apex --target-org headless360     # Acme (Demo), Globex (Demo)
+sf apex run --file scripts/apex/seed-demo-data.apex --target-org headless360     # Acme Global Tech, Globex (Demo)
 sf apex run --file scripts/apex/remove-demo-data.apex --target-org headless360   # removes them and their tasks
 ```
 
-`Acme (Demo)` has a large deal closing soon, an open high-priority case and no activity for 40 days, so
+`Acme Global Tech` (the series' running example, with contacts Priya Sharma and Rahul Mehta) has a large deal closing soon, an open high-priority case and no activity for 40 days, so
 `getAccountHealth` should rate it Watch or At Risk. `Globex (Demo)` should come out Healthy. The seed script
 skips an account that already exists.
 
