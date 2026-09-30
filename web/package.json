@@ -1,0 +1,34 @@
+{
+  "name": "salesforce-headless-360-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Headless Salesforce AI assistant: Next.js + Claude (MCP connector) + Salesforce Hosted MCP servers. Day 15 of 15 Days of Salesforce Headless 360.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.129.0",
+    "next": "16.3.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.7",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}
