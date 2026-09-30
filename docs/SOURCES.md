@@ -119,7 +119,7 @@ Salesforce CLI 2.83.7 does not know the type, hence the "update the CLI" note.
 
 | Item | Why | How the code copes |
 | --- | --- | --- |
-| `sobject-all` write tool names `createSobjectRecord`, `updateSobjectRecord`, `updateRelatedRecord`, `deleteSobjectRecord`, `deleteRelatedRecord` | Only in search-result summaries of the (403) Salesforce reference page and one GitHub issue; another article lists snake_case names and says delete lives in `sobject-deletes`. | `SF_MCP_SOBJECT_WRITE_TOOLS`; unknown names in `configs` are harmless (warning only). |
+| `sobject-all` write tool names `createSobjectRecord`, `updateSobjectRecord`, `updateRelatedRecord`, `deleteSobjectRecord`, `deleteRelatedRecord` | Listed on Salesforce's `sobject-all` guide (https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/sobject-all.html), checked for the blog series on 2026-09-30: 11 tools, of which these 5 change data. `sobject-deletes` also exposes the two delete tools. | `SF_MCP_SOBJECT_WRITE_TOOLS`; unknown names in `configs` are harmless (warning only). |
 | Exact Setup menu path for activation | Wiki says Setup > API Catalog > MCP Servers; other guides show Setup > Integrations > MCP Servers or Quick Find "MCP". | README says to use Quick Find "MCP". |
 | `/d/<mydomain>/` URLs for custom servers | The official wiki says it is being confirmed. | URLs are env vars. |
 | Whether one access token works for both servers (audience binding) | No source says tokens are per-resource; the documented flows request no `resource` parameter. | Optional `SF_OAUTH_RESOURCE` (RFC 8707). |
