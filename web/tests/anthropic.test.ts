@@ -22,7 +22,7 @@ describe("buildMessageParams", () => {
   it("connects both hosted MCP servers with the user's token", () => {
     const params = buildMessageParams({ config: testConfig(), accessToken: TOKEN, messages });
 
-    expect(params.model).toBe("claude-sonnet-5");
+    expect(params.model).toBe("claude-sonnet-5-5");
     expect(params.betas).toEqual(["mcp-client-2025-11-20"]);
     expect(params.mcp_servers).toEqual([
       {
@@ -85,7 +85,7 @@ describe("buildMessageParams", () => {
   });
 
   it("works with sobject-all only and honours optional settings", () => {
-    const config = testConfig({ SF_MCP_CUSTOM_URL: "", ANTHROPIC_EFFORT: "medium", ANTHROPIC_MODEL: "claude-sonnet-5" });
+    const config = testConfig({ SF_MCP_CUSTOM_URL: "", ANTHROPIC_EFFORT: "medium", ANTHROPIC_MODEL: "claude-sonnet-5-5" });
     const params = buildMessageParams({ config, accessToken: TOKEN, messages });
     expect(params.mcp_servers).toHaveLength(1);
     expect(toolsets(params)).toHaveLength(1);

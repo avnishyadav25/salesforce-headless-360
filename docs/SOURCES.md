@@ -26,11 +26,7 @@ confirm `BetaRequestMCPServerURLDefinition`, `BetaMCPToolset.configs`, `BetaMCPT
 and `client.beta.messages.stream()` tracking `input_json_delta` for `mcp_tool_use`. The test
 `tests/anthropic.test.ts` asserts the header and body on the wire.
 
-Model: [Claude Sonnet 5](https://platform.claude.com/docs/en/models/sonnet-5/overview): API ID **`claude-sonnet-5`**,
-1M context, 128K output, adaptive thinking, default effort `high`, non-default `temperature`/`top_p`/`top_k` return
-400. Marked **legacy** (retirement not sooner than 2027-06-30); the current Sonnet is `claude-sonnet-5-5`
-([models overview](https://platform.claude.com/docs/en/about-claude/models/overview)). The default stays
-`claude-sonnet-5` as specified; set `ANTHROPIC_MODEL` to switch.
+Model: [Claude Sonnet 5.5](https://platform.claude.com/docs/en/models/sonnet-5-5/overview), API ID **`claude-sonnet-5-5`**, the current Sonnet (Claude Sonnet 5 is marked legacy on its [model page](https://platform.claude.com/docs/en/models/sonnet-5/overview), retirement not sooner than 2027-06-30). Adaptive thinking; non-default `temperature`/`top_p`/`top_k` return 400. Set `ANTHROPIC_MODEL` to switch.
 
 ## Salesforce: hosted MCP servers
 

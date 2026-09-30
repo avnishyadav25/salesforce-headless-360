@@ -9,7 +9,7 @@ export const TEST_ENV: Record<string, string> = {
   SF_MCP_SOBJECT_URL: "https://api.salesforce.com/platform/mcp/v1/platform/sobject-all",
   SF_MCP_CUSTOM_URL: "https://api.salesforce.com/platform/mcp/v1/custom/Headless_Assistant_Tools",
   ANTHROPIC_API_KEY: "sk-ant-test-key",
-  ANTHROPIC_MODEL: "claude-sonnet-5",
+  ANTHROPIC_MODEL: "claude-sonnet-5-5",
   SESSION_SECRET: "test-session-secret-that-is-long-enough-123",
 };
 
@@ -57,7 +57,7 @@ export function sseMessage(blocks: Block[], stopReason = "end_turn", usage = { i
         id: "msg_test",
         type: "message",
         role: "assistant",
-        model: "claude-sonnet-5",
+        model: "claude-sonnet-5-5",
         content: [],
         stop_reason: null,
         stop_sequence: null,

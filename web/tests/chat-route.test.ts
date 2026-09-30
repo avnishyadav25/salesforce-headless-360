@@ -86,7 +86,7 @@ describe("POST /api/chat", () => {
     const events = await readEvents(response);
 
     expect(salesforceCalls).toHaveLength(0);
-    expect(events[0]).toEqual({ type: "start", model: "claude-sonnet-5", tokenRefreshed: false, writeEnabled: null });
+    expect(events[0]).toEqual({ type: "start", model: "claude-sonnet-5-5", tokenRefreshed: false, writeEnabled: null });
     expect(events.filter((event) => event.type === "text").map((event) => (event.type === "text" ? event.text : "")).join("")).toBe(
       "Checking Acme. Acme Corporation is on Watch (60/100).",
     );
@@ -110,7 +110,7 @@ describe("POST /api/chat", () => {
       mcp_servers: Array<{ name: string; authorization_token: string }>;
       tools: Array<Record<string, unknown>>;
     };
-    expect(body.model).toBe("claude-sonnet-5");
+    expect(body.model).toBe("claude-sonnet-5-5");
     expect(body.mcp_servers.map((server) => server.name)).toEqual([SOBJECT_SERVER, CUSTOM_SERVER]);
     expect(body.mcp_servers.every((server) => server.authorization_token === session.tokens.accessToken)).toBe(true);
     expect(body.tools.filter((tool) => tool.type === "mcp_toolset")).toHaveLength(2);

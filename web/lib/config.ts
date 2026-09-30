@@ -54,7 +54,7 @@ export const DEFAULTS = {
   sobjectUrl: "https://api.salesforce.com/platform/mcp/v1/platform/sobject-all",
   sobjectWriteTools: "createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord",
   customWriteTools: "createFollowUpTask",
-  model: "claude-sonnet-5",
+  model: "claude-sonnet-5-5",
   mcpBeta: "mcp-client-2025-11-20",
   maxTokens: 16000,
 } as const;

@@ -189,7 +189,7 @@ approvals, and a check that the executed write matches what was approved.
 | `SF_MCP_SOBJECT_WRITE_TOOLS` | no | `createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord` | Tools disabled until approval. **Verify in your org** against the server's tool list. |
 | `SF_MCP_CUSTOM_WRITE_TOOLS` | no | `createFollowUpTask` | Same, for the custom server. |
 | `ANTHROPIC_API_KEY` | yes | | |
-| `ANTHROPIC_MODEL` | no | `claude-sonnet-5` | `claude-sonnet-5-5` is the current Sonnet if you want the newer model. |
+| `ANTHROPIC_MODEL` | no | `claude-sonnet-5-5` | Claude Sonnet 5.5, the current Sonnet. Any Claude model that supports the MCP connector works. |
 | `ANTHROPIC_MCP_BETA` | no | `mcp-client-2025-11-20` | MCP connector beta header. |
 | `ANTHROPIC_MAX_TOKENS` | no | `16000` | Per response. |
 | `ANTHROPIC_EFFORT` | no | API default | `low`, `medium`, `high`, `xhigh`, `max`. |
@@ -201,7 +201,7 @@ approvals, and a check that the executed write matches what was approved.
 
 ```ts
 {
-  model: "claude-sonnet-5",
+  model: "claude-sonnet-5-5",
   betas: ["mcp-client-2025-11-20"],                       // sent as the anthropic-beta header
   mcp_servers: [
     { type: "url", name: "salesforce-sobject", url: SF_MCP_SOBJECT_URL, authorization_token: accessToken },
