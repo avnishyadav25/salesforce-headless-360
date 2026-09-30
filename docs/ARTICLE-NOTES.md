@@ -83,7 +83,7 @@ markdown sections that cite record Ids), fixed tools (read-only, so no approval 
 | Authorize URL | `web/lib/salesforce-oauth.ts` 41-54 | `scope=mcp_api refresh_token` (GA scopes; beta used `api sfap_api ...`). |
 | Code exchange | `web/lib/salesforce-oauth.ts` 89-101 and `web/app/api/auth/salesforce/callback/route.ts` 37-44 | State checked in constant time; verifier single-use. |
 | Short-lived token before it leaves the server | `web/lib/salesforce-oauth.ts` 168-207 (`needsRefresh`, `ensureFreshSession`); route side `web/lib/route-session.ts` 39-50 (`refreshSession`) | Refresh near JWT `exp` or after 15 minutes, because the token is sent to Anthropic's API. |
-| Encrypted cookie session | `web/lib/session.ts` 60-89 (`seal`/`unseal`), 161-176 (`writeSession`) | AES-256-GCM, HKDF key, purpose-bound AAD, absolute expiry, chunking for large JWTs. |
+| Encrypted cookie session | `web/lib/session.ts` 60-89 (`seal`/`unseal`), 161-176 (`writeSession`) | AES-256-GCM, HKDF key, purpose-bound AAD, expiry 8 hours after the last write (sign-in or token refresh, which re-seals the cookie), chunking for large JWTs. |
 | Logout | `web/app/api/auth/salesforce/logout/route.ts` | POST-only, revokes the refresh token. |
 | Discovering the auth server | README "Activate the hosted MCP servers" (`curl .../.well-known/oauth-protected-resource/...`) | The MCP URL tells you which login host and scopes to use. |
 
