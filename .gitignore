@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Next.js / build output
+web/.next/
+web/out/
+web/build/
+web/next-env.d.ts
+*.tsbuildinfo
+
+# Test output
+coverage/
+
+# Environment files (commit only the example)
+.env
+.env.*
+!.env.example
+
+# Salesforce CLI local state
+.sf/
+.sfdx/
+salesforce/.sf/
+salesforce/.sfdx/
+salesforce/.localdevserver/
+**/.sfdx/tools/
+
+# Editors and OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log
+npm-debug.log*

@@ -1,0 +1,8 @@
+# Files the Salesforce CLI should not deploy or retrieve.
+package.xml
+**/jsconfig.json
+**/.eslintrc.json
+**/__tests__/**
+**/*.md
+.sfdx/
+.sf/

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>AccountHealthTool</members>
+        <members>AccountHealthToolTest</members>
+        <members>CreateFollowUpTaskTool</members>
+        <members>CreateFollowUpTaskToolTest</members>
+        <members>TestUsers</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>Create_Follow_Up_Task_Flow</members>
+        <name>Flow</name>
+    </types>
+    <types>
+        <members>Headless_Assistant_Tools</members>
+        <name>McpServerDefinition</name>
+    </types>
+    <types>
+        <members>Headless_Assistant_User</members>
+        <name>PermissionSet</name>
+    </types>
+    <version>67.0</version>
+</Package>

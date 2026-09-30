@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<McpServerDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Business tools for the Headless 360 Assistant: an Account health summary and validated follow-up task creation, both written in Apex and run as the signed-in user.</description>
+    <masterLabel>Headless Assistant Tools</masterLabel>
+    <tools>
+        <apiDefinition>
+            <apiIdentifier>aa:apex-AccountHealthTool</apiIdentifier>
+            <apiSource>API_CATALOG</apiSource>
+            <operation>AccountHealthTool</operation>
+        </apiDefinition>
+        <descriptionOverride>Returns a health summary for one Account: open opportunities, open and weighted pipeline, deals closing in 30 days, open and high-priority cases, days since last activity, a 0-100 score, a Healthy/Watch/At Risk status and a one-line summary. Pass accountId, or accountName (partial names match).</descriptionOverride>
+        <toolName>getAccountHealth</toolName>
+        <toolTitle>Get Account Health</toolTitle>
+    </tools>
+    <tools>
+        <apiDefinition>
+            <apiIdentifier>aa:apex-CreateFollowUpTaskTool</apiIdentifier>
+            <apiSource>API_CATALOG</apiSource>
+            <operation>CreateFollowUpTaskTool</operation>
+        </apiDefinition>
+        <descriptionOverride>Creates an open follow-up Task for the current user on an Account, Opportunity or Case (recordId), or a Contact or Lead. Requires recordId and subject; dueDate (YYYY-MM-DD, default today + 3) and priority (High, Normal, Low) are optional. Returns the existing open task instead of a duplicate. This tool changes data.</descriptionOverride>
+        <toolName>createFollowUpTask</toolName>
+        <toolTitle>Create Follow-Up Task</toolTitle>
+    </tools>
+</McpServerDefinition>
