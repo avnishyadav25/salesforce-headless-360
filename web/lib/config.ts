@@ -57,7 +57,7 @@ export const DEFAULTS = {
   scopes: "mcp_api refresh_token",
   tokenMaxAgeSeconds: 900,
   sobjectUrl: "https://api.salesforce.com/platform/mcp/v1/platform/sobject-all",
-  sobjectWriteTools: "createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord",
+  sobjectWriteTools: "createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord,deleteRelatedRecord",
   customWriteTools: "createFollowUpTask",
   model: "claude-sonnet-5-5",
   mcpBeta: "mcp-client-2025-11-20",

@@ -57,6 +57,7 @@ describe("buildMessageParams", () => {
       updateSobjectRecord: { enabled: false },
       updateRelatedRecord: { enabled: false },
       deleteSobjectRecord: { enabled: false },
+      deleteRelatedRecord: { enabled: false },
     });
     expect(custom?.configs).toEqual({ createFollowUpTask: { enabled: false } });
   });
@@ -70,7 +71,7 @@ describe("buildMessageParams", () => {
     });
     const [sobject, custom] = toolsets(params);
     expect(custom?.configs).toBeUndefined();
-    expect(Object.values(sobject?.configs ?? {})).toHaveLength(4);
+    expect(Object.values(sobject?.configs ?? {})).toHaveLength(5);
     expect(Object.values(sobject?.configs ?? {}).every((config) => config.enabled === false)).toBe(true);
   });
 

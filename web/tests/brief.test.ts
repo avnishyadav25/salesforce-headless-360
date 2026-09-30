@@ -80,6 +80,7 @@ describe("brief request builder", () => {
       updateSobjectRecord: { enabled: false },
       updateRelatedRecord: { enabled: false },
       deleteSobjectRecord: { enabled: false },
+      deleteRelatedRecord: { enabled: false },
     });
     expect(custom?.mcp_server_name).toBe(CUSTOM_SERVER);
     expect(custom?.configs).toEqual({ createFollowUpTask: { enabled: false }, Create_Follow_Up_Task_Flow: { enabled: false } });

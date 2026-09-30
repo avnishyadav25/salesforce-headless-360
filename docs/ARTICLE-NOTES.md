@@ -30,7 +30,7 @@ propose a write → user approves → only that tool is enabled → audit the ex
 **Snippet: the request (for the article body)** — copy from `web/lib/anthropic.ts` 163-179, or use the condensed
 version in the root README ("How the request looks").
 
-**Numbers worth stating:** 50 Vitest tests; 2 hosted MCP servers; 4 `sobject-all` write tools gated by default;
+**Numbers worth stating:** 50 Vitest tests; 2 hosted MCP servers; 5 `sobject-all` write tools gated by default;
 token refreshed when older than 15 minutes; session cookie sealed with AES-256-GCM and split under 4 KB per cookie.
 
 ## Day 10: Build Your First AI + Salesforce Workflow

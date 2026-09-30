@@ -194,7 +194,7 @@ approvals, and a check that the executed write matches what was approved.
 | `SF_TOKEN_MAX_AGE_SECONDS` | no | `900` | Refresh the access token before use when it is older than this or within 60 s of its JWT `exp`. |
 | `SF_MCP_SOBJECT_URL` | no | production `sobject-all` URL | Copy from Setup. |
 | `SF_MCP_CUSTOM_URL` | no | | Custom server URL. Empty = run with `sobject-all` only. |
-| `SF_MCP_SOBJECT_WRITE_TOOLS` | no | `createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord` | Tools disabled until approval. **Verify in your org** against the server's tool list. |
+| `SF_MCP_SOBJECT_WRITE_TOOLS` | no | `createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord,deleteRelatedRecord` | Tools disabled until approval. **Verify in your org** against the server's tool list. |
 | `SF_MCP_CUSTOM_WRITE_TOOLS` | no | `createFollowUpTask` | Same, for the custom server. |
 | `ANTHROPIC_API_KEY` | yes | | |
 | `ANTHROPIC_MODEL` | no | `claude-sonnet-5-5` | Claude Sonnet 5.5, the current Sonnet. Any Claude model that supports the MCP connector works. |
