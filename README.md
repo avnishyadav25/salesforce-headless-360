@@ -11,8 +11,11 @@ Anthropic's **MCP connector**, so Claude calls **Salesforce Hosted MCP servers**
 Every tool call runs as the signed-in user, so Salesforce applies their object permissions, field-level security
 and sharing. Reads run immediately; **writes are proposed first and only run after the user clicks Approve**.
 
+The same servers also power a read-only **meeting prep brief** (`/brief`): type an Account name, get a
+fixed-format pre-meeting brief built from Salesforce data. See [Meeting prep brief (Day 10)](#meeting-prep-brief-day-10).
+
 This is the capstone of the blog series *15 Days of Salesforce Headless 360* (Day 15: "Build a Complete Headless
-Salesforce AI Assistant").
+Salesforce AI Assistant"; Day 10: "Build Your First AI + Salesforce Workflow").
 
 > Status: the web app is fully tested with mocked Salesforce and Anthropic endpoints; the Apex compiles against a
 > syntax parser but has not been deployed from this repo. Items that depend on your org are marked
@@ -52,6 +55,7 @@ sequenceDiagram
 browser ──(cookie: sealed session, NDJSON stream)──> Next.js route handlers
                                                      │  app/api/auth/salesforce/{login,callback,logout}
                                                      │  app/api/chat  ── lib/anthropic.ts builds the request
+                                                     │  app/api/brief ── lib/brief.ts: same servers, read-only
                                                      ▼
                            Claude Messages API  (beta: mcp-client-2025-11-20)
                                                      │  authorization_token = user's short-lived JWT
@@ -67,15 +71,19 @@ browser ──(cookie: sealed session, NDJSON stream)──> Next.js route handl
 .
 ├── web/                         Next.js 16 app (TypeScript strict, App Router)
 │   ├── app/page.tsx             Sign-in page / chat shell (server component)
+│   ├── app/brief/page.tsx       Meeting prep brief page (Day 10)
 │   ├── app/api/auth/salesforce/ login (PKCE + state), callback (code exchange), logout (revoke)
 │   ├── app/api/chat/route.ts    Streams one chat turn as NDJSON
-│   ├── components/              Chat, TracePanel, ProposalCard (client components)
+│   ├── app/api/brief/route.ts   Returns one read-only meeting brief as JSON
+│   ├── components/              Chat, Brief, TracePanel, ProposalCard (client); Topbar (server)
 │   ├── lib/anthropic.ts         Messages API request builder: mcp_servers + mcp_toolset + approval tool
 │   ├── lib/chat.ts              Turn preparation, approval handling, streaming, write audit
+│   ├── lib/brief.ts             Brief request (read-only toolsets), deadline, retries, error mapping, tool log
+│   ├── lib/route-session.ts     Route guards shared by chat and brief: config, origin, session, refresh
 │   ├── lib/salesforce-oauth.ts  Authorize URL, token exchange, refresh, revoke
 │   ├── lib/session.ts           AES-256-GCM sealed, chunked, httpOnly cookie sessions
 │   ├── lib/pkce.ts              RFC 7636 helpers
-│   ├── tests/                   Vitest: PKCE, session, OAuth, request builder, chat route (mocked fetch)
+│   ├── tests/                   Vitest: PKCE, session, OAuth, request builder, chat and brief routes (mocked fetch)
 │   └── .env.example
 ├── salesforce/                  SFDX project (API 67.0): Apex tools + tests, Flow, permission set,
 │                                McpServerDefinition, manifest/package.xml
@@ -193,6 +201,7 @@ approvals, and a check that the executed write matches what was approved.
 | `ANTHROPIC_MCP_BETA` | no | `mcp-client-2025-11-20` | MCP connector beta header. |
 | `ANTHROPIC_MAX_TOKENS` | no | `16000` | Per response. |
 | `ANTHROPIC_EFFORT` | no | API default | `low`, `medium`, `high`, `xhigh`, `max`. |
+| `BRIEF_TIMEOUT_MS` | no | `60000` | Overall deadline for one meeting brief (all model calls, retries and `pause_turn` continuations); then 504. Keep it below the route's `maxDuration` (300 s). |
 | `SESSION_SECRET` | yes | | 32+ random characters: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
 
 ## How the request looks
@@ -238,6 +247,65 @@ The MCP tools execute inside Anthropic's API, so this app cannot intercept a sin
 configuration per request plus the audit. `CreateFollowUpTaskTool` is also idempotent, so a retried call returns the
 existing open task.
 
+## Meeting prep brief (Day 10)
+
+The chat turned into a repeatable workflow. Open **Meeting brief** in the header (`/brief`), type an Account name
+and click **Generate**. `POST /api/brief` runs one read-only turn against the same hosted MCP servers, as the
+signed-in user, and returns markdown with fixed sections: `## Snapshot`, `## Pipeline`, `## Service`, `## Risks`,
+`## Suggested talking points`. Claude cites the Id of every record it used and writes "not found" rather than guess.
+
+- **Read-only, no approval step.** Every configured write tool is disabled on every server and
+  `propose_write_action` is not sent, so there is no path to a write.
+- **Tools.** With the custom server configured, Claude starts with `getAccountHealth`; otherwise it uses
+  `soqlQuery` / `getRelatedRecords` on `sobject-all`.
+- **Deadline.** One `AbortController` stops the whole brief after `BRIEF_TIMEOUT_MS` (60 s): 504. The SDK's own
+  `timeout` applies per attempt and is retried, so it cannot bound the total.
+- **Retries.** `maxRetries: 2` per request. The SDK retries 408, 409, 429 and 5xx (529 "overloaded" included) with
+  exponential backoff and honours `retry-after`; for a streamed request that covers the initial response only.
+  Retry waits count against the deadline.
+- **`pause_turn`.** The brief reuses the chat's turn runner, which sends a paused turn back to resume it.
+- **Logs.** One line per MCP tool call, names and duration only:
+  `{"event":"mcp_tool_use","server":"salesforce-custom","tool":"getAccountHealth","ms":812}`.
+
+Call it with curl after signing in in the browser. Copy every `sfh360_session.N` cookie from DevTools >
+Application > Cookies (the session is split into chunks; the values below are placeholders):
+
+```bash
+curl -s http://localhost:3000/api/brief \
+  -H 'content-type: application/json' \
+  -H 'cookie: sfh360_session.0=<sealed-chunk-0>; sfh360_session.1=<sealed-chunk-1>' \
+  -d '{"accountName":"Acme Global Tech"}' | jq -r .brief
+```
+
+The full response:
+
+```json
+{
+  "brief": "## Snapshot\n- Acme Global Tech (001...) ...\n\n## Pipeline\n...",
+  "trace": [
+    { "type": "tool_call", "id": "mcptoolu_...", "server": "salesforce-custom", "name": "getAccountHealth", "input": { "accountName": "Acme Global Tech" } },
+    { "type": "tool_result", "toolUseId": "mcptoolu_...", "isError": false, "text": "{ ... }" }
+  ],
+  "model": "claude-sonnet-5-5",
+  "durationMs": 14231
+}
+```
+
+Errors use the same `{ "error": "<code>", "message": "..." }` shape as `/api/chat`:
+
+| Status | `error` | When |
+| --- | --- | --- |
+| 400 | `invalid_request` | `accountName` missing, empty after trimming, longer than 120 characters, or the body is not JSON. |
+| 401 | `not_signed_in`, `reauth_required` | No session, or Salesforce no longer accepts the refresh token: sign in again (the cookie is cleared). |
+| 403 | `forbidden` | Cross-origin request. |
+| 429 | `rate_limited` | Anthropic still rate limits the key after the retries. |
+| 500 | `config`, `anthropic_auth`, `internal` | Missing configuration, a rejected `ANTHROPIC_API_KEY`, or a bug (see the server log). |
+| 502 | `bad_request`, `anthropic_error`, `refused`, `empty_brief`, `salesforce_unreachable` | Anthropic rejected the request (MCP connection problems land here) or failed after the retries, the model returned no brief, or Salesforce's token endpoint was unreachable. |
+| 504 | `timeout` | `BRIEF_TIMEOUT_MS` passed. |
+
+A failing MCP tool (a SOQL error, an access error) is not an HTTP error: it comes back in the trace as a
+`tool_result` with `isError: true`, and the brief says "not found" for what it could not read.
+
 ## Security notes
 
 - **Tokens stay server-side.** Salesforce tokens live only in an AES-256-GCM sealed, `httpOnly`, `SameSite=Lax`
@@ -257,6 +325,9 @@ existing open task.
   unless the user just approved one specific call.
 - **CSRF.** Logout is POST-only; POST routes check the `Origin` header; the OAuth `state` is compared in constant
   time and the PKCE verifier is single-use.
+- **Logs.** The server logs MCP tool names and durations only, never tokens, headers or tool inputs. Leave
+  `ANTHROPIC_LOG` unset (the SDK defaults to `warn`): at `debug` the SDK logs request bodies, and those contain the
+  Salesforce access token in `mcp_servers[].authorization_token`.
 - **Local demo.** No rate limiting, no multi-user hardening, no audit log beyond Salesforce's own. Do not deploy it
   as is.
 
@@ -283,7 +354,7 @@ Hosted MCP tool calls count against the org's daily API request limit.
 cd web
 npm run typecheck   # next typegen && tsc --noEmit
 npm run lint        # eslint (next core-web-vitals + typescript)
-npm test            # vitest: 39 tests, all network calls mocked
+npm test            # vitest: 50 tests, all network calls mocked
 npm run build
 ```
 

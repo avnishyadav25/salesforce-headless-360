@@ -68,3 +68,20 @@ export type ChatStreamEvent =
       audit?: WriteAudit;
     }
   | { type: "error"; message: string; code?: string };
+
+/** The ChatStreamEvent kinds that describe what the tools did; POST /api/brief returns them as its trace. */
+export type TraceEvent = Extract<ChatStreamEvent, { type: "tool_call" | "tool_result" | "thinking" }>;
+
+export interface BriefRequestBody {
+  /** Account name as the user typed it (trimmed, 1-120 characters). */
+  accountName: string;
+}
+
+/** JSON returned by POST /api/brief on success. Errors use the { error, message } shape of every route. */
+export interface BriefResponse {
+  /** Markdown with the fixed H2 sections (Snapshot, Pipeline, Service, Risks, Suggested talking points). */
+  brief: string;
+  trace: TraceEvent[];
+  model: string;
+  durationMs: number;
+}

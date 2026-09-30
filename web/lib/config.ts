@@ -32,6 +32,11 @@ export interface AppConfig {
     maxTokens: number;
     effort?: Effort;
   };
+  /** Day 10 meeting-prep brief (POST /api/brief). */
+  brief: {
+    /** Overall deadline for one brief: every model call, retry wait and pause_turn continuation. */
+    timeoutMs: number;
+  };
   sessionSecret: string;
   /** Mark cookies Secure when the app itself is served over https. */
   secureCookies: boolean;
@@ -57,6 +62,7 @@ export const DEFAULTS = {
   model: "claude-sonnet-5-5",
   mcpBeta: "mcp-client-2025-11-20",
   maxTokens: 16000,
+  briefTimeoutMs: 60_000,
 } as const;
 
 function read(env: EnvSource, name: string): string | undefined {
@@ -147,6 +153,7 @@ export function loadConfig(env: EnvSource = process.env): AppConfig {
     DEFAULTS.tokenMaxAgeSeconds,
   );
   const maxTokens = positiveInt(problems, "ANTHROPIC_MAX_TOKENS", read(env, "ANTHROPIC_MAX_TOKENS"), DEFAULTS.maxTokens);
+  const briefTimeoutMs = positiveInt(problems, "BRIEF_TIMEOUT_MS", read(env, "BRIEF_TIMEOUT_MS"), DEFAULTS.briefTimeoutMs);
 
   if (problems.length > 0) {
     throw new ConfigError(problems);
@@ -175,6 +182,7 @@ export function loadConfig(env: EnvSource = process.env): AppConfig {
       maxTokens,
       effort,
     },
+    brief: { timeoutMs: briefTimeoutMs },
     sessionSecret,
     secureCookies: callbackUrl.startsWith("https://"),
   };

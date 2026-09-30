@@ -151,6 +151,27 @@ code {
   white-space: nowrap;
 }
 
+.nav {
+  display: flex;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.nav a {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.nav a:hover,
+.nav a[aria-current="page"] {
+  color: var(--fg);
+  background: var(--panel);
+}
+
 .footer {
   border-top: 1px solid var(--line);
   padding: 10px 20px;
@@ -201,6 +222,8 @@ code {
 
 .btn:focus-visible,
 .chip:focus-visible,
+.nav a:focus-visible,
+input:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
   outline: 2px solid var(--accent);
@@ -401,7 +424,8 @@ summary:focus-visible {
   padding: 14px clamp(16px, 4vw, 48px);
 }
 
-.composer textarea {
+.composer textarea,
+.composer input {
   flex: 1;
   resize: none;
   font: inherit;
@@ -412,8 +436,26 @@ summary:focus-visible {
   max-height: 180px;
 }
 
-.composer textarea:disabled {
+.composer textarea:disabled,
+.composer input:disabled {
   background: var(--panel);
+}
+
+/* ---------- meeting brief ---------- */
+
+.brief-form {
+  border-top: 0;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+}
+
+.message.brief {
+  width: min(860px, 100%);
+  max-width: none;
+}
+
+.brief-meta {
+  margin: 0;
 }
 
 /* ---------- proposal ---------- */

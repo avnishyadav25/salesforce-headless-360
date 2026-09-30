@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import { loadConfig, type AppConfig } from "@/lib/config";
-import type { SessionData } from "@/lib/session";
+import { chunkName, sealSession, SESSION_COOKIE, splitIntoChunks, type SessionData } from "@/lib/session";
 
 export const TEST_ENV: Record<string, string> = {
   SF_LOGIN_URL: "https://login.salesforce.com",
@@ -123,4 +123,45 @@ export type FetchFn = (input: string | URL | Request, init?: RequestInit) => Pro
 /** A typed fetch mock whose calls can be passed straight to capture(). */
 export function mockFetchReturning(respond: () => Response) {
   return vi.fn<FetchFn>(async () => respond());
+}
+
+/** Cookie header carrying a sealed session, as the browser would send it. */
+export function sessionCookie(session: SessionData): string {
+  return splitIntoChunks(sealSession(session, TEST_ENV.SESSION_SECRET!))
+    .map((chunk, index) => `${chunkName(SESSION_COOKIE, index)}=${chunk}`)
+    .join("; ");
+}
+
+/**
+ * Routes mocked fetch calls: Salesforce token endpoint vs. Anthropic Messages API.
+ * Each Anthropic call takes the next item: an SSE body (string) or a ready Response.
+ */
+export function mockFetch(anthropicResponses: Array<string | Response>, salesforceToken?: string) {
+  const anthropicCalls: CapturedRequest[] = [];
+  const salesforceCalls: CapturedRequest[] = [];
+  const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+    const request = await capture(input, init);
+    if (request.url.startsWith("https://login.salesforce.com/services/oauth2/token")) {
+      salesforceCalls.push(request);
+      return new Response(
+        JSON.stringify({
+          access_token: salesforceToken,
+          instance_url: "https://acme-dev-ed.develop.my.salesforce.com",
+          id: "https://login.salesforce.com/id/00D000000000001EAA/005000000000001AAA",
+          issued_at: String(Date.now()),
+          token_type: "Bearer",
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }
+    if (request.url.startsWith("https://api.anthropic.com/v1/messages")) {
+      anthropicCalls.push(request);
+      const next = anthropicResponses.shift();
+      if (next === undefined) throw new Error("Unexpected extra Anthropic call");
+      return typeof next === "string" ? sseResponse(next) : next;
+    }
+    throw new Error(`Unexpected fetch to ${request.url}`);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return { fetchMock, anthropicCalls, salesforceCalls };
 }

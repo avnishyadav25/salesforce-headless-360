@@ -4,16 +4,10 @@ import { POST } from "@/app/api/chat/route";
 import { CUSTOM_SERVER, PROPOSE_WRITE_TOOL, SOBJECT_SERVER } from "@/lib/anthropic";
 import type { BetaMessageParam, ChatStreamEvent } from "@/lib/chat-types";
 import { readNdjson } from "@/lib/ndjson";
-import { chunkName, readSession, sealSession, SESSION_COOKIE, splitIntoChunks, type SessionData } from "@/lib/session";
-import { capture, fakeJwt, sseMessage, sseResponse, stubTestEnv, TEST_ENV, testSession, type CapturedRequest } from "./helpers";
+import { readSession, type SessionData } from "@/lib/session";
+import { fakeJwt, mockFetch, sessionCookie, sseMessage, stubTestEnv, TEST_ENV, testSession } from "./helpers";
 
 const ORIGIN = "http://localhost:3000";
-
-function sessionCookie(session: SessionData): string {
-  return splitIntoChunks(sealSession(session, TEST_ENV.SESSION_SECRET!))
-    .map((chunk, index) => `${chunkName(SESSION_COOKIE, index)}=${chunk}`)
-    .join("; ");
-}
 
 function chatRequest(body: unknown, { session, origin = ORIGIN }: { session?: SessionData; origin?: string } = {}) {
   const headers: Record<string, string> = { "content-type": "application/json", origin };
@@ -25,37 +19,6 @@ async function readEvents(response: Response): Promise<ChatStreamEvent[]> {
   const events: ChatStreamEvent[] = [];
   if (response.body) await readNdjson<ChatStreamEvent>(response.body, (event) => events.push(event));
   return events;
-}
-
-/** Routes mocked fetch calls: Salesforce token endpoint vs. Anthropic Messages API. */
-function mockFetch(anthropicBodies: string[], salesforceToken?: string) {
-  const anthropicCalls: CapturedRequest[] = [];
-  const salesforceCalls: CapturedRequest[] = [];
-  const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
-    const request = await capture(input, init);
-    if (request.url.startsWith("https://login.salesforce.com/services/oauth2/token")) {
-      salesforceCalls.push(request);
-      return new Response(
-        JSON.stringify({
-          access_token: salesforceToken,
-          instance_url: "https://acme-dev-ed.develop.my.salesforce.com",
-          id: "https://login.salesforce.com/id/00D000000000001EAA/005000000000001AAA",
-          issued_at: String(Date.now()),
-          token_type: "Bearer",
-        }),
-        { status: 200, headers: { "content-type": "application/json" } },
-      );
-    }
-    if (request.url.startsWith("https://api.anthropic.com/v1/messages")) {
-      anthropicCalls.push(request);
-      const body = anthropicBodies.shift();
-      if (body === undefined) throw new Error("Unexpected extra Anthropic call");
-      return sseResponse(body);
-    }
-    throw new Error(`Unexpected fetch to ${request.url}`);
-  });
-  vi.stubGlobal("fetch", fetchMock);
-  return { fetchMock, anthropicCalls, salesforceCalls };
 }
 
 const healthArgs = { accountName: "Acme" };

@@ -215,6 +215,8 @@ export interface RunTurnInput {
   config: AppConfig;
   emit: (event: ChatStreamEvent) => void;
   signal?: AbortSignal;
+  /** Per-request override of the client's retry count (the SDK retries 408/409/429/5xx). */
+  maxRetries?: number;
 }
 
 export interface TurnResult {
@@ -224,14 +226,14 @@ export interface TurnResult {
   usage: { inputTokens: number; outputTokens: number; cacheReadInputTokens: number };
 }
 
-export async function runTurn({ client, params, config, emit, signal }: RunTurnInput): Promise<TurnResult> {
+export async function runTurn({ client, params, config, emit, signal, maxRetries }: RunTurnInput): Promise<TurnResult> {
   const assistantMessages: BetaMessageParam[] = [];
   const usage = { inputTokens: 0, outputTokens: 0, cacheReadInputTokens: 0 };
   let messages = params.messages;
   let final: BetaMessage | undefined;
 
   for (let attempt = 0; attempt <= MAX_PAUSE_CONTINUATIONS; attempt += 1) {
-    const stream = client.beta.messages.stream({ ...params, messages }, signal ? { signal } : undefined);
+    const stream = client.beta.messages.stream({ ...params, messages }, { signal, maxRetries });
     stream.on("text", (delta) => emit({ type: "text", text: delta }));
     stream.on("contentBlock", (block) => emitBlock(block, emit));
     final = await stream.finalMessage();

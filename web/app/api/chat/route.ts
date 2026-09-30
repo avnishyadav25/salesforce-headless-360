@@ -2,10 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { buildMessageParams, createAnthropicClient } from "@/lib/anthropic";
 import type { ChatRequestBody, ChatStreamEvent } from "@/lib/chat-types";
 import { auditWrites, ChatInputError, describeError, prepareTurn, runTurn, validateChatBody, type PreparedTurn } from "@/lib/chat";
-import { ConfigError, loadConfig } from "@/lib/config";
-import { isSameOrigin, jsonError } from "@/lib/http";
-import { ensureFreshSession, ReauthenticationRequired } from "@/lib/salesforce-oauth";
-import { clearSession, readSession, writeSession } from "@/lib/session";
+import { jsonError } from "@/lib/http";
+import { loadRouteConfig, refreshSession, requireSession, saveRefreshedSession } from "@/lib/route-session";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -16,21 +14,12 @@ export const maxDuration = 300;
  * in the Anthropic request's mcp_servers[].authorization_token; the browser never sees it.
  */
 export async function POST(request: NextRequest) {
-  let config;
-  try {
-    config = loadConfig();
-  } catch (error) {
-    return jsonError(500, error instanceof ConfigError ? error.message : "Configuration error.", "config");
-  }
+  const loaded = loadRouteConfig();
+  if ("response" in loaded) return loaded.response;
+  const { config } = loaded;
 
-  if (!isSameOrigin(request)) {
-    return jsonError(403, "Cross-origin requests are not allowed.", "forbidden");
-  }
-
-  const session = readSession(request.cookies, config.sessionSecret);
-  if (!session) {
-    return jsonError(401, "Sign in with Salesforce first.", "not_signed_in");
-  }
+  const signedIn = requireSession(request, config);
+  if ("response" in signedIn) return signedIn.response;
 
   let body: ChatRequestBody;
   let prepared: PreparedTurn;
@@ -42,17 +31,8 @@ export async function POST(request: NextRequest) {
     return jsonError(400, "Body must be valid JSON.", "invalid_request");
   }
 
-  let fresh;
-  try {
-    fresh = await ensureFreshSession(session, config);
-  } catch (error) {
-    if (error instanceof ReauthenticationRequired) {
-      const response = jsonError(401, error.message, "reauth_required");
-      clearSession(response, config.secureCookies);
-      return response;
-    }
-    return jsonError(502, "Could not reach Salesforce to refresh the session.", "salesforce_unreachable");
-  }
+  const fresh = await refreshSession(signedIn.session, config);
+  if ("response" in fresh) return fresh.response;
 
   const client = createAnthropicClient(config);
   const params = buildMessageParams({
@@ -112,8 +92,6 @@ export async function POST(request: NextRequest) {
       "x-accel-buffering": "no",
     },
   });
-  if (fresh.refreshed) {
-    writeSession(response, fresh.session, { secret: config.sessionSecret, secure: config.secureCookies });
-  }
+  saveRefreshedSession(response, fresh, config);
   return response;
 }

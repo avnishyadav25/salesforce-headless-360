@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import Chat from "@/components/Chat";
+import Topbar, { Footer, signedInUser, type SignedInUser } from "@/components/Topbar";
 import { mcpServerInfo } from "@/lib/anthropic";
 import type { McpServerInfo } from "@/lib/chat-types";
 import { ConfigError, loadConfig } from "@/lib/config";
@@ -17,20 +18,6 @@ const AUTH_ERRORS: Record<string, string> = {
   redirect_uri_mismatch: "SF_CALLBACK_URL does not match a callback URL on the External Client App.",
   token_exchange: "Salesforce did not return tokens. Check the server log.",
 };
-
-interface SignedInUser {
-  label: string;
-  orgId?: string;
-  instanceHost: string;
-}
-
-function hostOf(url: string): string {
-  try {
-    return new URL(url).host;
-  } catch {
-    return url;
-  }
-}
 
 export default async function Home({
   searchParams,
@@ -50,13 +37,7 @@ export default async function Home({
     model = config.anthropic.model;
     servers = mcpServerInfo(config);
     const session = readSession(await cookies(), config.sessionSecret);
-    if (session) {
-      user = {
-        label: session.user.username ?? session.user.userId ?? "Salesforce user",
-        orgId: session.user.orgId,
-        instanceHost: hostOf(session.tokens.instanceUrl),
-      };
-    }
+    if (session) user = signedInUser(session);
   } catch (error) {
     if (!(error instanceof ConfigError)) throw error;
     problems = error.problems;
@@ -64,31 +45,7 @@ export default async function Home({
 
   return (
     <div className="shell">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true">H360</span>
-          <div>
-            <h1>Headless 360 Assistant</h1>
-            <p className="subtle">Claude + Salesforce Hosted MCP · runs as you</p>
-          </div>
-        </div>
-        {user ? (
-          <div className="account">
-            <div className="account-text">
-              <span className="account-name">{user.label}</span>
-              <span className="subtle mono-small">
-                {user.instanceHost}
-                {user.orgId ? ` · ${user.orgId}` : ""}
-              </span>
-            </div>
-            <form action="/api/auth/salesforce/logout" method="post">
-              <button type="submit" className="btn ghost">
-                Sign out
-              </button>
-            </form>
-          </div>
-        ) : null}
-      </header>
+      <Topbar user={user} active="chat" />
 
       {problems.length > 0 ? (
         <main className="center">
@@ -140,12 +97,7 @@ export default async function Home({
         </main>
       )}
 
-      <footer className="footer">
-        Built for Day 15 of 15 Days of Salesforce Headless 360 by Avnish Yadav ·{" "}
-        <a href="https://avnishyadav.com" target="_blank" rel="noreferrer">
-          avnishyadav.com
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }

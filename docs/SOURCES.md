@@ -26,6 +26,16 @@ confirm `BetaRequestMCPServerURLDefinition`, `BetaMCPToolset.configs`, `BetaMCPT
 and `client.beta.messages.stream()` tracking `input_json_delta` for `mcp_tool_use`. The test
 `tests/anthropic.test.ts` asserts the header and body on the wire.
 
+SDK behaviour the Day 10 brief relies on, read from the same package (`client.js`, `lib/BetaMessageStream.js`,
+`internal/utils/sleep.js`, `internal/utils/log.js`):
+
+| Fact | Used in |
+| --- | --- |
+| `maxRetries` defaults to 2 and can be set per request (`options.maxRetries ?? this.maxRetries`). `shouldRetry` retries 408, 409, 429 and every status >= 500 (so 529 overloaded) unless `x-should-retry` says otherwise, plus connection errors. Backoff is 0.5 s doubling to 8 s with jitter, or `retry-after-ms` / `retry-after`. | `BRIEF_MAX_RETRIES` in `lib/brief.ts`, `runTurn({ maxRetries })` |
+| `timeout` (default 10 minutes) applies per attempt, and timed-out attempts are retried. | Overall deadline via `AbortController` instead |
+| An aborted `signal` ends the request with `APIUserAbortError`; an abort during a retry wait wakes it early and the next attempt throws the same error. The stream's `finalMessage()` rejects with it. | `runBrief` maps it to `BriefTimeoutError` (504) |
+| At log level `debug` (`ANTHROPIC_LOG=debug`) the SDK logs request options including the body and redacts only auth headers; the body carries `mcp_servers[].authorization_token`. | README security note: leave `ANTHROPIC_LOG` unset |
+
 Model: [Claude Sonnet 5.5](https://platform.claude.com/docs/en/models/sonnet-5-5/overview), API ID **`claude-sonnet-5-5`**, the current Sonnet (Claude Sonnet 5 is marked legacy on its [model page](https://platform.claude.com/docs/en/models/sonnet-5/overview), retirement not sooner than 2027-06-30). Adaptive thinking; non-default `temperature`/`top_p`/`top_k` return 400. Set `ANTHROPIC_MODEL` to switch.
 
 ## Salesforce: hosted MCP servers
