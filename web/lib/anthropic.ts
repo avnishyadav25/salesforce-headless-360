@@ -33,7 +33,7 @@ export function serverNames(config: AppConfig): string[] {
 export function mcpServerInfo(config: AppConfig): McpServerInfo[] {
   const servers: McpServerInfo[] = [{ name: SOBJECT_SERVER, label: "sobject-all (standard)", url: config.mcp.sobjectUrl }];
   if (config.mcp.customUrl) {
-    servers.push({ name: CUSTOM_SERVER, label: "Headless_Assistant_Tools (custom Apex)", url: config.mcp.customUrl });
+    servers.push({ name: CUSTOM_SERVER, label: "HeadlessAssistantTools (custom Apex)", url: config.mcp.customUrl });
   }
   return servers;
 }

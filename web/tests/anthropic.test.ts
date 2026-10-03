@@ -33,7 +33,7 @@ describe("buildMessageParams", () => {
       },
       {
         type: "url",
-        url: "https://api.salesforce.com/platform/mcp/v1/custom/Headless_Assistant_Tools",
+        url: "https://api.salesforce.com/platform/mcp/v1/custom/HeadlessAssistantTools",
         name: CUSTOM_SERVER,
         authorization_token: TOKEN,
       },

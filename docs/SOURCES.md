@@ -51,8 +51,8 @@ GET https://api.salesforce.com/.well-known/oauth-protected-resource/platform/mcp
   "scopes_supported": ["mcp_api", "refresh_token"] }
 
 .../platform/mcp/v1/sandbox/platform/sobject-all          -> authorization_servers ["https://test.salesforce.com"]
-.../platform/mcp/v1/custom/Headless_Assistant_Tools       -> ["https://login.salesforce.com"], same scopes
-.../platform/mcp/v1/sandbox/custom/Headless_Assistant_Tools -> ["https://test.salesforce.com"]
+.../platform/mcp/v1/custom/HeadlessAssistantTools       -> ["https://login.salesforce.com"], same scopes
+.../platform/mcp/v1/sandbox/custom/HeadlessAssistantTools -> ["https://test.salesforce.com"]
 .../platform/mcp/v1/d/acme-dev-ed/develop/platform/sobject-all -> ["https://acme-dev-ed.develop.my.salesforce.com"]
 ```
 
@@ -92,7 +92,7 @@ Blog: [Expose Custom Apex as a Hosted MCP Tool for Agents](https://developer.sal
 | Fact | Used in |
 | --- | --- |
 | Apex exposed via `@InvocableMethod` with `@InvocableVariable(description=...)` request/result classes; class, method and types are `global` ("required for MCP tool discovery"); queries use `WITH USER_MODE`. | `AccountHealthTool`, `CreateFollowUpTaskTool` |
-| `McpServerDefinition` metadata in `force-app/main/default/mcpServerDefinitions/<Name>.mcpServerDefinition-meta.xml`: `description`, `masterLabel`, and `tools[]` with `apiDefinition { apiIdentifier: aa:apex-<Class>, apiSource: API_CATALOG, operation: <Class> }`, `descriptionOverride`, `toolName`, `toolTitle`. | `Headless_Assistant_Tools.mcpServerDefinition-meta.xml` |
+| `McpServerDefinition` metadata in `force-app/main/default/mcpServerDefinitions/<Name>.mcpServerDefinition-meta.xml`: `description`, `masterLabel`, and `tools[]` with `apiDefinition { apiIdentifier: aa:apex-<Class>, apiSource: API_CATALOG, operation: <Class> }`, `descriptionOverride`, `toolName`, `toolTitle`. | `HeadlessAssistantTools.mcpServerDefinition-meta.xml` |
 | Setup UI alternative: **Setup > Integration > Salesforce MCP Servers**, custom server, tool backing type **Apex Action**. | salesforce/README.md fallback |
 | Custom server URL: `https://api.salesforce.com/platform/mcp/v1/custom/<NAME>`; sandbox/scratch `.../v1/sandbox/custom/<NAME>`; copy it from the server's Authentication Details. | `.env.example` |
 | ECA: scopes `mcp_api` + `refresh_token`, JWT-based tokens for named users, PKCE, everything else unchecked. | README |

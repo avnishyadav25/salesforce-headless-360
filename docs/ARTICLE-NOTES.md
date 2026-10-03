@@ -70,7 +70,7 @@ markdown sections that cite record Ids), fixed tools (read-only, so no approval 
 | Scoring | `AccountHealthTool.cls` 283-310 (`score`, `status`) | Business logic stays deterministic in Apex; the model only chooses when to call it. |
 | Validated write tool | `CreateFollowUpTaskTool.cls` 32-110 | Validation, visibility check, idempotency (existing open task), `Database.insert(..., AccessLevel.USER_MODE)`. |
 | Dynamic but safe SOQL | `CreateFollowUpTaskTool.cls` 183-208 (`findVisibleTargets`) | Object name from the schema, Ids as binds, `Database.queryWithBinds(..., AccessLevel.USER_MODE)`. |
-| MCP server definition | `salesforce/force-app/main/default/mcpServerDefinitions/Headless_Assistant_Tools.mcpServerDefinition-meta.xml` 1-25 | `aa:apex-<Class>` + `API_CATALOG` + `toolName`; deploy it like any metadata. |
+| MCP server definition | `salesforce/force-app/main/default/mcpServerDefinitions/HeadlessAssistantTools.mcpServerDefinition-meta.xml` 1-25 | `aa:apex-<Class>` + `API_CATALOG` + `toolName`; deploy it like any metadata. |
 | Declarative equivalent | `salesforce/force-app/main/default/flows/Create_Follow_Up_Task_Flow.flow-meta.xml` | Same outcome as a Flow; add it to the server in Setup as a Flow tool. |
 | Least-privilege permission set | `salesforce/force-app/main/default/permissionsets/Headless_Assistant_User.permissionset-meta.xml` | Class access, Flow access, API Enabled, Edit Tasks, read on 3 objects. |
 | Apex tests | `AccountHealthToolTest.cls` 48-75, 170-186; `CreateFollowUpTaskToolTest.cls` 77-108, 133-151 | `Test.startTest()`, `Assert.*`, and `System.runAs` a Minimum Access user to show permissions apply. |
@@ -89,7 +89,7 @@ markdown sections that cite record Ids), fixed tools (read-only, so no approval 
 
 ## Screenshots to capture
 
-1. **Setup > API Catalog > MCP Servers** with `platform/sobject-all` and `Headless_Assistant_Tools` active.
+1. **Setup > API Catalog > MCP Servers** with `platform/sobject-all` and `HeadlessAssistantTools` active.
 2. The custom server's detail page: the two tools (`getAccountHealth`, `createFollowUpTask`) and the Server URL
    (blur the org-specific part if you like).
 3. External Client App **OAuth settings**: callback `http://localhost:3000/api/auth/salesforce/callback`, scopes

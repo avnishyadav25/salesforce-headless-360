@@ -31,3 +31,7 @@ salesforce/.localdevserver/
 .idea/
 *.log
 npm-debug.log*
+
+# Local tool worktrees (Kilo)
+.kilo/
+.vscode/

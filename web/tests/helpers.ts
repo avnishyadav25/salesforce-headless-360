@@ -7,7 +7,7 @@ export const TEST_ENV: Record<string, string> = {
   SF_CLIENT_ID: "3MVG9test-consumer-key",
   SF_CALLBACK_URL: "http://localhost:3000/api/auth/salesforce/callback",
   SF_MCP_SOBJECT_URL: "https://api.salesforce.com/platform/mcp/v1/platform/sobject-all",
-  SF_MCP_CUSTOM_URL: "https://api.salesforce.com/platform/mcp/v1/custom/Headless_Assistant_Tools",
+  SF_MCP_CUSTOM_URL: "https://api.salesforce.com/platform/mcp/v1/custom/HeadlessAssistantTools",
   ANTHROPIC_API_KEY: "sk-ant-test-key",
   ANTHROPIC_MODEL: "claude-sonnet-5-5",
   SESSION_SECRET: "test-session-secret-that-is-long-enough-123",

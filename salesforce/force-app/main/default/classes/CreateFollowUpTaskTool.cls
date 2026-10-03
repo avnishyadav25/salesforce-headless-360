@@ -2,7 +2,7 @@
  * Custom MCP tool: create a follow-up Task, with validation.
  *
  * Published as the `createFollowUpTask` tool of the custom Salesforce Hosted MCP server
- * `Headless_Assistant_Tools`. The web app treats it as a write tool: it stays disabled
+ * `HeadlessAssistantTools`. The web app treats it as a write tool: it stays disabled
  * until the user approves a specific proposal.
  *
  * Security: `with sharing`, USER_MODE queries and USER_MODE DML, so the task is created

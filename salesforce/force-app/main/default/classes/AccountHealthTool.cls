@@ -2,8 +2,8 @@
  * Custom MCP tool: health summary for an Account.
  *
  * The invocable method is published as the `getAccountHealth` tool of the custom
- * Salesforce Hosted MCP server `Headless_Assistant_Tools`
- * (see mcpServerDefinitions/Headless_Assistant_Tools.mcpServerDefinition-meta.xml).
+ * Salesforce Hosted MCP server `HeadlessAssistantTools`
+ * (see mcpServerDefinitions/HeadlessAssistantTools.mcpServerDefinition-meta.xml).
  *
  * Security: `with sharing` plus `WITH USER_MODE` on every query, so the signed-in
  * user's object permissions, field-level security and sharing rules all apply.

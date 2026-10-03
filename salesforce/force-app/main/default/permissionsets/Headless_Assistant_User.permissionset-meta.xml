@@ -8,7 +8,7 @@
         <apexClass>CreateFollowUpTaskTool</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Minimum access for the Headless 360 Assistant: the two Apex MCP tools, the follow-up Flow, API access, read access to the objects the tools summarize, and the Edit Tasks permission needed to create follow-up tasks. Record access still follows the org sharing model.</description>
+    <description>Minimum access for the Headless 360 Assistant.</description>
     <fieldPermissions>
         <editable>false</editable>
         <field>Account.Industry</field>

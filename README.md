@@ -61,7 +61,7 @@ browser ──(cookie: sealed session, NDJSON stream)──> Next.js route handl
                                                      │  authorization_token = user's short-lived JWT
                          ┌───────────────────────────┴───────────────────────────┐
                          ▼                                                       ▼
-   api.salesforce.com/platform/mcp/v1/platform/sobject-all     api.salesforce.com/platform/mcp/v1/custom/Headless_Assistant_Tools
+   api.salesforce.com/platform/mcp/v1/platform/sobject-all     api.salesforce.com/platform/mcp/v1/custom/HeadlessAssistantTools
                                                                   └─ Apex @InvocableMethod: AccountHealthTool, CreateFollowUpTaskTool
 ```
 
@@ -122,13 +122,13 @@ Hosted MCP servers are **off by default** since GA. In **Setup > API Catalog > M
 **verify in your org**, some guides show the same page under Setup > Integrations):
 
 1. Activate **`platform/sobject-all`**. Activation can take up to 2 minutes.
-2. Open **`Headless_Assistant_Tools`** (deployed in step 1, or create it there with two Apex Action tools) and activate it.
+2. Open **`HeadlessAssistantTools`** (deployed in step 1, or create it there with two Apex Action tools) and activate it.
 3. Copy each server's **Server URL** from its details page. The usual shapes are:
 
 | Org type | sobject-all | custom server |
 | --- | --- | --- |
-| Production / Developer Edition | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/custom/Headless_Assistant_Tools` |
-| Sandbox / scratch | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/sandbox/custom/Headless_Assistant_Tools` |
+| Production / Developer Edition | `https://api.salesforce.com/platform/mcp/v1/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/custom/HeadlessAssistantTools` |
+| Sandbox / scratch | `https://api.salesforce.com/platform/mcp/v1/sandbox/platform/sobject-all` | `https://api.salesforce.com/platform/mcp/v1/sandbox/custom/HeadlessAssistantTools` |
 | My Domain (DE) | `https://api.salesforce.com/platform/mcp/v1/d/<mydomain>/develop/platform/sobject-all` | same `/d/<mydomain>/develop/` prefix (**verify in your org**) |
 
 Use the URL Setup shows. Whichever form you pick, `SF_LOGIN_URL` must be the authorization server that URL

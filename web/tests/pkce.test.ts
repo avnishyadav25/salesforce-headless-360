@@ -56,13 +56,13 @@ describe("authorizeUrl", () => {
     const config = testConfig({
       SF_LOGIN_URL: "https://acme-dev-ed.develop.my.salesforce.com/",
       SF_OAUTH_RESOURCE:
-        "https://api.salesforce.com/platform/mcp/v1/platform/sobject-all, https://api.salesforce.com/platform/mcp/v1/custom/Headless_Assistant_Tools",
+        "https://api.salesforce.com/platform/mcp/v1/platform/sobject-all, https://api.salesforce.com/platform/mcp/v1/custom/HeadlessAssistantTools",
     });
     const url = new URL(authorizeUrl(config, { state: "s", codeChallenge: "c" }));
     expect(url.host).toBe("acme-dev-ed.develop.my.salesforce.com");
     expect(url.searchParams.getAll("resource")).toEqual([
       "https://api.salesforce.com/platform/mcp/v1/platform/sobject-all",
-      "https://api.salesforce.com/platform/mcp/v1/custom/Headless_Assistant_Tools",
+      "https://api.salesforce.com/platform/mcp/v1/custom/HeadlessAssistantTools",
     ]);
   });
 });

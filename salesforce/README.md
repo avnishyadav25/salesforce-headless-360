@@ -10,7 +10,7 @@ custom Salesforce Hosted MCP server.
 | `classes/*Test.cls`, `classes/TestUsers.cls` | Apex tests (`@IsTest`, `Test.startTest()`, `Assert`), including a restricted-user test for each tool. |
 | `flows/Create_Follow_Up_Task_Flow.flow-meta.xml` | Autolaunched Flow: the declarative equivalent of the task tool. |
 | `permissionsets/Headless_Assistant_User.permissionset-meta.xml` | Apex class access, Flow access, API Enabled, Edit Tasks, read on Account/Opportunity/Case. |
-| `mcpServerDefinitions/Headless_Assistant_Tools.mcpServerDefinition-meta.xml` | Custom hosted MCP server exposing the two Apex actions as `getAccountHealth` and `createFollowUpTask`. |
+| `mcpServerDefinitions/HeadlessAssistantTools.mcpServerDefinition-meta.xml` | Custom hosted MCP server exposing the two Apex actions as `getAccountHealth` and `createFollowUpTask`. |
 
 Both tools run `with sharing`, query `WITH USER_MODE` and insert with `AccessLevel.USER_MODE`, so the
 signed-in user's CRUD, field-level security and sharing apply. The classes and their request/result
@@ -72,7 +72,7 @@ The tests create their own data. The two `respectsTheCallersAccess` tests create
 - **MCP server definition.** The `apiIdentifier` format (`aa:apex-<ClassName>`, `apiSource` `API_CATALOG`,
   `operation` = class name) follows Salesforce's sample repo for the May 2026 blog post. If the deploy is
   rejected, create the server in Setup instead: **Setup > MCP Servers** (Quick Find "MCP") > New custom
-  server `Headless_Assistant_Tools`, then add two tools with backing type **Apex Action**:
+  server `HeadlessAssistantTools`, then add two tools with backing type **Apex Action**:
   *Get Account Health* as `getAccountHealth` and *Create Follow-Up Task* as `createFollowUpTask`.
 - **Flow as a tool.** The Flow is deployed but not added to the server definition, because the metadata
   format for Flow-backed tools is not documented anywhere reachable. Add it in the Setup UI if you want it

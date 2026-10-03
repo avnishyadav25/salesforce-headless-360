@@ -13,7 +13,7 @@
         <name>Flow</name>
     </types>
     <types>
-        <members>Headless_Assistant_Tools</members>
+        <members>HeadlessAssistantTools</members>
         <name>McpServerDefinition</name>
     </types>
     <types>
