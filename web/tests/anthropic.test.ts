@@ -49,20 +49,30 @@ describe("buildMessageParams", () => {
     expect(names.sort()).toEqual((params.mcp_servers ?? []).map((server) => server.name).sort());
   });
 
-  it("disables every write tool until one is approved", () => {
+  it("starts every tool disabled and enables only the configured read tools", () => {
     const params = buildMessageParams({ config: testConfig(), accessToken: TOKEN, messages });
     const [sobject, custom] = toolsets(params);
+    for (const toolset of [sobject, custom]) expect(toolset?.default_config).toEqual({ enabled: false });
     expect(sobject?.configs).toEqual({
-      createSobjectRecord: { enabled: false },
-      updateSobjectRecord: { enabled: false },
-      updateRelatedRecord: { enabled: false },
-      deleteSobjectRecord: { enabled: false },
-      deleteRelatedRecord: { enabled: false },
+      getObjectSchema: { enabled: true },
+      soqlQuery: { enabled: true },
+      find: { enabled: true },
+      getUserInfo: { enabled: true },
+      listRecentSobjectRecords: { enabled: true },
+      getRelatedRecords: { enabled: true },
     });
-    expect(custom?.configs).toEqual({ createFollowUpTask: { enabled: false } });
+    expect(custom?.configs).toEqual({ getAccountHealth: { enabled: true } });
   });
 
-  it("enables only the approved tool on the approval request", () => {
+  it("keeps a renamed or unknown tool disabled (fail closed)", () => {
+    // Re-adding the Apex action in Setup renames it, e.g. CreateFollowUpTaskToolapex_CreateFollowUpTaskTool.
+    const params = buildMessageParams({ config: testConfig(), accessToken: TOKEN, messages });
+    const [, custom] = toolsets(params);
+    expect(custom?.configs?.["CreateFollowUpTaskToolapex_CreateFollowUpTaskTool"]).toBeUndefined();
+    expect(custom?.default_config?.enabled).toBe(false);
+  });
+
+  it("enables only the approved write tool on the approval request", () => {
     const params = buildMessageParams({
       config: testConfig(),
       accessToken: TOKEN,
@@ -70,9 +80,19 @@ describe("buildMessageParams", () => {
       enabledWrite: { server: CUSTOM_SERVER, tool: "createFollowUpTask" },
     });
     const [sobject, custom] = toolsets(params);
-    expect(custom?.configs).toBeUndefined();
-    expect(Object.values(sobject?.configs ?? {})).toHaveLength(5);
-    expect(Object.values(sobject?.configs ?? {}).every((config) => config.enabled === false)).toBe(true);
+    expect(custom?.configs).toEqual({ getAccountHealth: { enabled: true }, createFollowUpTask: { enabled: true } });
+    expect(Object.keys(sobject?.configs ?? {})).not.toContain("createSobjectRecord");
+  });
+
+  it("never enables an 'approved' tool that is not a configured write tool", () => {
+    const params = buildMessageParams({
+      config: testConfig(),
+      accessToken: TOKEN,
+      messages,
+      enabledWrite: { server: CUSTOM_SERVER, tool: "somethingElse" },
+    });
+    const [, custom] = toolsets(params);
+    expect(custom?.configs).toEqual({ getAccountHealth: { enabled: true } });
   });
 
   it("adds the propose_write_action client tool with eager input streaming", () => {

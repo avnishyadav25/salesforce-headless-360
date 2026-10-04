@@ -4,7 +4,8 @@
  *
  * Request shape (beta header mcp-client-2025-11-20):
  *   mcp_servers: [{ type: "url", url, name, authorization_token }]
- *   tools:       [{ type: "mcp_toolset", mcp_server_name, configs: { <tool>: { enabled: false } } }, ...]
+ *   tools:       [{ type: "mcp_toolset", mcp_server_name, default_config: { enabled: false },
+ *                   configs: { <read tool>: { enabled: true } } }, ...]
  * Every server in mcp_servers must be referenced by exactly one mcp_toolset.
  * See docs/SOURCES.md for the verified reference.
  */
@@ -59,20 +60,26 @@ export function buildMcpServers(config: AppConfig, accessToken: string): BetaReq
   return servers;
 }
 
+export function readToolsFor(config: AppConfig, server: string): string[] {
+  if (server === SOBJECT_SERVER) return config.mcp.sobjectReadTools;
+  if (server === CUSTOM_SERVER && config.mcp.customUrl) return config.mcp.customReadTools;
+  return [];
+}
+
 /**
- * One toolset per server. Write tools are denylisted (enabled: false) so Claude cannot
- * call them; the single tool the user approved is left enabled for the approval request.
+ * One toolset per server, fail closed: every tool starts disabled (default_config), then only the
+ * configured read tools are enabled, plus the single write tool the user approved. A tool the
+ * server adds or renames later (for example one re-added in Setup, which gets a generated name)
+ * stays disabled until it is listed in the read or write tools.
  */
 export function buildMcpToolsets(config: AppConfig, enabledWrite?: { server: string; tool: string }): BetaMCPToolset[] {
   return serverNames(config).map((server) => {
     const configs: Record<string, BetaMCPToolConfig> = {};
-    for (const tool of writeToolsFor(config, server)) {
-      const approved = enabledWrite?.server === server && enabledWrite.tool === tool;
-      if (!approved) configs[tool] = { enabled: false };
+    for (const tool of readToolsFor(config, server)) configs[tool] = { enabled: true };
+    if (enabledWrite?.server === server && writeToolsFor(config, server).includes(enabledWrite.tool)) {
+      configs[enabledWrite.tool] = { enabled: true };
     }
-    const toolset: BetaMCPToolset = { type: "mcp_toolset", mcp_server_name: server };
-    if (Object.keys(configs).length > 0) toolset.configs = configs;
-    return toolset;
+    return { type: "mcp_toolset", mcp_server_name: server, default_config: { enabled: false }, configs };
   });
 }
 
@@ -111,8 +118,9 @@ export function buildSystemPrompt(config: AppConfig): string {
   const customLines = config.mcp.customUrl
     ? [
         `- Server "${CUSTOM_SERVER}" is this org's custom hosted MCP server with business tools written in Apex. ` +
-          "Use getAccountHealth when the user asks how an account is doing, and createFollowUpTask for follow-up tasks. " +
-          `Write tools: ${config.mcp.customWriteTools.join(", ") || "(none configured)"}.`,
+          `Read tools: ${config.mcp.customReadTools.join(", ") || "(none configured)"}; use getAccountHealth when the user ` +
+          "asks how an account is doing. " +
+          `Write tools: ${config.mcp.customWriteTools.join(", ") || "(none configured)"}; createFollowUpTask creates follow-up tasks.`,
       ]
     : [];
 

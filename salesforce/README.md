@@ -76,8 +76,11 @@ The tests create their own data. The two `respectsTheCallersAccess` tests create
   *Get Account Health* as `getAccountHealth` and *Create Follow-Up Task* as `createFollowUpTask`.
 - **Flow as a tool.** The Flow is deployed but not added to the server definition, because the metadata
   format for Flow-backed tools is not documented anywhere reachable. Add it in the Setup UI if you want it
-  (tool type Flow, name for example `createFollowUpTaskFlow`) and add that name to
-  `SF_MCP_CUSTOM_WRITE_TOOLS` in the web app so it is gated behind approval too.
+  (Add Server Assets > Add Tools > Flows). Salesforce generates its name, for example
+  `Create_Follow_Up_Task_Flowflow_Create_Follow_Up_Task_Flow`, and a tool re-added in Setup gets a generated
+  name too (`CreateFollowUpTaskToolapex_CreateFollowUpTaskTool`); only the deployed definition keeps
+  `createFollowUpTask`. The web app keeps any tool it doesn't list disabled; add the Flow's name to
+  `SF_MCP_CUSTOM_WRITE_TOOLS` to make it available behind approval.
 - **Flow status.** Production and Developer Edition orgs may deploy flows as inactive unless
   "Deploy processes and flows as active" is enabled in Process Automation Settings. Activate it in Flow
   Builder if needed.

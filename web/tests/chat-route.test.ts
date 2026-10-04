@@ -174,7 +174,7 @@ describe("POST /api/chat", () => {
     expect(firstDone.stopReason).toBe("tool_use");
     const firstBody = JSON.parse(anthropicCalls[0]!.body) as { tools: Array<{ type?: string; mcp_server_name?: string; configs?: object }> };
     expect(firstBody.tools.find((tool) => tool.mcp_server_name === CUSTOM_SERVER)?.configs).toEqual({
-      createFollowUpTask: { enabled: false },
+      getAccountHealth: { enabled: true },
     });
 
     // Turn 2: the user approves.
@@ -193,9 +193,12 @@ describe("POST /api/chat", () => {
     const toolResult = Array.isArray(lastMessage?.content) ? lastMessage.content[0] : undefined;
     expect(toolResult).toMatchObject({ type: "tool_result", tool_use_id: "toolu_propose_1" });
     expect(JSON.stringify(toolResult)).toContain("APPROVED");
-    expect(secondBody.tools.find((tool) => tool.mcp_server_name === CUSTOM_SERVER)?.configs).toBeUndefined();
+    expect(secondBody.tools.find((tool) => tool.mcp_server_name === CUSTOM_SERVER)?.configs).toEqual({
+      getAccountHealth: { enabled: true },
+      createFollowUpTask: { enabled: true },
+    });
     const sobjectConfigs = secondBody.tools.find((tool) => tool.mcp_server_name === SOBJECT_SERVER)?.configs ?? {};
-    expect(Object.values(sobjectConfigs).every((config) => config.enabled === false)).toBe(true);
+    expect(Object.keys(sobjectConfigs)).not.toContain("createSobjectRecord");
 
     const secondDone = second.at(-1);
     if (secondDone?.type !== "done") throw new Error("expected done");

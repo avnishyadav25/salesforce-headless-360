@@ -24,6 +24,12 @@ export interface AppConfig {
     customUrl?: string;
     sobjectWriteTools: string[];
     customWriteTools: string[];
+    /**
+     * Read tools Claude may call without approval. Every other tool on a server, including any
+     * tool Salesforce adds or renames later, starts disabled (fail closed).
+     */
+    sobjectReadTools: string[];
+    customReadTools: string[];
   };
   anthropic: {
     apiKey: string;
@@ -59,6 +65,8 @@ export const DEFAULTS = {
   sobjectUrl: "https://api.salesforce.com/platform/mcp/v1/platform/sobject-all",
   sobjectWriteTools: "createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord,deleteRelatedRecord",
   customWriteTools: "createFollowUpTask",
+  sobjectReadTools: "getObjectSchema,soqlQuery,find,getUserInfo,listRecentSobjectRecords,getRelatedRecords",
+  customReadTools: "getAccountHealth",
   model: "claude-sonnet-5-5",
   mcpBeta: "mcp-client-2025-11-20",
   maxTokens: 16000,
@@ -155,6 +163,18 @@ export function loadConfig(env: EnvSource = process.env): AppConfig {
   const maxTokens = positiveInt(problems, "ANTHROPIC_MAX_TOKENS", read(env, "ANTHROPIC_MAX_TOKENS"), DEFAULTS.maxTokens);
   const briefTimeoutMs = positiveInt(problems, "BRIEF_TIMEOUT_MS", read(env, "BRIEF_TIMEOUT_MS"), DEFAULTS.briefTimeoutMs);
 
+  const sobjectWriteTools = list(read(env, "SF_MCP_SOBJECT_WRITE_TOOLS") ?? DEFAULTS.sobjectWriteTools);
+  const customWriteTools = list(read(env, "SF_MCP_CUSTOM_WRITE_TOOLS") ?? DEFAULTS.customWriteTools);
+  const sobjectReadTools = list(read(env, "SF_MCP_SOBJECT_READ_TOOLS") ?? DEFAULTS.sobjectReadTools);
+  const customReadTools = list(read(env, "SF_MCP_CUSTOM_READ_TOOLS") ?? DEFAULTS.customReadTools);
+  for (const [name, reads, writes] of [
+    ["SF_MCP_SOBJECT_READ_TOOLS", sobjectReadTools, sobjectWriteTools],
+    ["SF_MCP_CUSTOM_READ_TOOLS", customReadTools, customWriteTools],
+  ] as const) {
+    const both = reads.filter((tool) => writes.includes(tool));
+    if (both.length) problems.push(`${name} lists write tools: ${both.join(", ")}`);
+  }
+
   if (problems.length > 0) {
     throw new ConfigError(problems);
   }
@@ -172,8 +192,10 @@ export function loadConfig(env: EnvSource = process.env): AppConfig {
     mcp: {
       sobjectUrl,
       customUrl,
-      sobjectWriteTools: list(read(env, "SF_MCP_SOBJECT_WRITE_TOOLS") ?? DEFAULTS.sobjectWriteTools),
-      customWriteTools: list(read(env, "SF_MCP_CUSTOM_WRITE_TOOLS") ?? DEFAULTS.customWriteTools),
+      sobjectWriteTools,
+      customWriteTools,
+      sobjectReadTools,
+      customReadTools,
     },
     anthropic: {
       apiKey,

@@ -194,8 +194,10 @@ approvals, and a check that the executed write matches what was approved.
 | `SF_TOKEN_MAX_AGE_SECONDS` | no | `900` | Refresh the access token before use when it is older than this or within 60 s of its JWT `exp`. |
 | `SF_MCP_SOBJECT_URL` | no | production `sobject-all` URL | Copy from Setup. |
 | `SF_MCP_CUSTOM_URL` | no | | Custom server URL. Empty = run with `sobject-all` only. |
-| `SF_MCP_SOBJECT_WRITE_TOOLS` | no | `createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord,deleteRelatedRecord` | Tools disabled until approval. **Verify in your org** against the server's tool list. |
-| `SF_MCP_CUSTOM_WRITE_TOOLS` | no | `createFollowUpTask` | Same, for the custom server. |
+| `SF_MCP_SOBJECT_READ_TOOLS` | no | `getObjectSchema,soqlQuery,find,getUserInfo,listRecentSobjectRecords,getRelatedRecords` | The only tools enabled without approval. Every other tool starts disabled (fail closed). |
+| `SF_MCP_SOBJECT_WRITE_TOOLS` | no | `createSobjectRecord,updateSobjectRecord,updateRelatedRecord,deleteSobjectRecord,deleteRelatedRecord` | Tools Claude may propose; each is enabled only for the one call you approve. **Verify in your org** against the server's tool list. |
+| `SF_MCP_CUSTOM_READ_TOOLS` | no | `getAccountHealth` | Same as the read list, for the custom server. |
+| `SF_MCP_CUSTOM_WRITE_TOOLS` | no | `createFollowUpTask` | Same as the write list, for the custom server. |
 | `ANTHROPIC_API_KEY` | yes | | |
 | `ANTHROPIC_MODEL` | no | `claude-sonnet-5-5` | Claude Sonnet 5.5, the current Sonnet. Any Claude model that supports the MCP connector works. |
 | `ANTHROPIC_MCP_BETA` | no | `mcp-client-2025-11-20` | MCP connector beta header. |
@@ -341,7 +343,7 @@ A failing MCP tool (a SOQL error, an access error) is not an HTTP error: it come
 | Chat error mentioning the MCP server / 401 | Token rejected: check the ECA has JWT-based access tokens and PKCE enabled, the scopes are exactly `mcp_api refresh_token`, and `SF_LOGIN_URL` matches the MCP URL's authorization server. |
 | MCP server 404 | Server not activated yet (allow 2 minutes) or wrong URL. Copy it from Setup. |
 | Tools missing from the custom server | Apex actions must be deployed and the server activated; check the permission set is assigned. |
-| A write happened without a proposal | A write tool name differs in your org. Ask "What tools do you have?", read the names in the trace, and update `SF_MCP_SOBJECT_WRITE_TOOLS` / `SF_MCP_CUSTOM_WRITE_TOOLS`. |
+| Claude says a tool is unavailable | Every tool not in a read or write list is disabled (fail closed). Tools re-added in Setup get generated names such as `CreateFollowUpTaskToolapex_CreateFollowUpTaskTool`: read the names on the server's Tools tab and add them to the right `SF_MCP_*_READ_TOOLS` / `SF_MCP_*_WRITE_TOOLS` list, or redeploy the server definition to restore `getAccountHealth` and `createFollowUpTask`. |
 | "Your Salesforce session ended" | Refresh token expired or revoked, or the refresh-token policy requires re-login. Sign in again. |
 | `sf project deploy` says the `.mcpServerDefinition-meta.xml` suffix is unknown | Update the Salesforce CLI (`sf update`). |
 | Anthropic `invalid_request_error` about `mcp_servers` | Each server must be referenced by exactly one `mcp_toolset`; check `ANTHROPIC_MCP_BETA`. |
@@ -364,7 +366,7 @@ npm run build
 - [ ] The exact Server URLs, especially the `/d/<mydomain>/` form for custom servers.
 - [ ] `sobject-all` write tool names match `SF_MCP_SOBJECT_WRITE_TOOLS`.
 - [ ] The `McpServerDefinition` deploy (`aa:apex-<Class>` identifiers); otherwise create the server in Setup.
-- [ ] Adding the Flow as a tool (Setup UI) and gating it via `SF_MCP_CUSTOM_WRITE_TOOLS`.
+- [ ] Adding the Flow as a tool (Setup UI) and gating it via `SF_MCP_CUSTOM_WRITE_TOOLS` (its generated name looks like `Create_Follow_Up_Task_Flowflow_Create_Follow_Up_Task_Flow`).
 - [ ] One access token works for both servers. If your org rejects it, try `SF_OAUTH_RESOURCE` with both URLs.
 - [ ] The Salesforce JWT includes `exp` (used for refresh timing) and a display name claim (falls back to the user Id).
 

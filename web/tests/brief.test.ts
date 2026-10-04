@@ -21,7 +21,7 @@ function briefRequest(body: unknown, { session, origin = ORIGIN }: { session?: S
   });
 }
 
-type RequestTool = { type?: string; name?: string; mcp_server_name?: string; configs?: Record<string, { enabled: boolean }> };
+type RequestTool = { type?: string; name?: string; mcp_server_name?: string; configs?: Record<string, { enabled: boolean }>; default_config?: { enabled?: boolean } };
 
 const healthArgs = { accountName: "Acme" };
 const healthResult = JSON.stringify({ found: true, accountId: "001000000000001AAA", healthStatus: "Watch", healthScore: 60 });
@@ -64,7 +64,7 @@ function toolsets(tools: unknown[] | undefined): BetaMCPToolset[] {
 }
 
 describe("brief request builder", () => {
-  it("disables every configured write tool on every server and sends no propose tool", () => {
+  it("enables only the read tools on every server and sends no propose tool", () => {
     const config = testConfig({ SF_MCP_CUSTOM_WRITE_TOOLS: "createFollowUpTask,Create_Follow_Up_Task_Flow" });
     const params = buildBriefParams({ config, accessToken: TOKEN, accountName: "Acme" });
 
@@ -75,15 +75,12 @@ describe("brief request builder", () => {
 
     const [sobject, custom] = toolsets(params.tools);
     expect(sobject?.mcp_server_name).toBe(SOBJECT_SERVER);
-    expect(sobject?.configs).toEqual({
-      createSobjectRecord: { enabled: false },
-      updateSobjectRecord: { enabled: false },
-      updateRelatedRecord: { enabled: false },
-      deleteSobjectRecord: { enabled: false },
-      deleteRelatedRecord: { enabled: false },
-    });
+    expect(sobject?.default_config).toEqual({ enabled: false });
+    expect(Object.keys(sobject?.configs ?? {})).not.toContain("createSobjectRecord");
+    expect(Object.values(sobject?.configs ?? {}).every((c) => c.enabled === true)).toBe(true);
     expect(custom?.mcp_server_name).toBe(CUSTOM_SERVER);
-    expect(custom?.configs).toEqual({ createFollowUpTask: { enabled: false }, Create_Follow_Up_Task_Flow: { enabled: false } });
+    expect(custom?.default_config).toEqual({ enabled: false });
+    expect(custom?.configs).toEqual({ getAccountHealth: { enabled: true } });
 
     expect(params.betas).toEqual(["mcp-client-2025-11-20"]);
     expect(params.thinking).toEqual({ type: "adaptive", display: "summarized" });
@@ -164,8 +161,9 @@ describe("POST /api/brief", () => {
     expect(body.tools.every((tool) => tool.type === "mcp_toolset")).toBe(true);
     expect(body.tools.some((tool) => tool.name === PROPOSE_WRITE_TOOL)).toBe(false);
     for (const tool of body.tools) {
-      expect(Object.values(tool.configs ?? {}).length).toBeGreaterThan(0);
-      expect(Object.values(tool.configs ?? {}).every((config) => config.enabled === false)).toBe(true);
+      expect(tool.default_config).toEqual({ enabled: false });
+      expect(Object.keys(tool.configs ?? {}).length).toBeGreaterThan(0);
+      for (const name of Object.keys(tool.configs ?? {})) expect(name).not.toMatch(/^(create|update|delete)/);
     }
     expect(body.system).toContain("getAccountHealth");
     expect(body.messages).toEqual([{ role: "user", content: 'Prepare the meeting brief for this Account: "Acme"' }]);
