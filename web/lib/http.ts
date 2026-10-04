@@ -7,6 +7,9 @@ import { NextResponse, type NextRequest } from "next/server";
 export function isSameOrigin(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return true;
+  // Browsers send "Origin: null" for form posts from a page with a strict referrer policy.
+  // Fall back to Fetch Metadata, which the browser sets and pages can't forge.
+  if (origin === "null") return request.headers.get("sec-fetch-site") === "same-origin";
   try {
     const host = request.headers.get("host") ?? request.nextUrl.host;
     return new URL(origin).host === host;
