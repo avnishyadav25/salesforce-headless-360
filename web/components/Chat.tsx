@@ -5,6 +5,7 @@ import ProposalCard from "@/components/ProposalCard";
 import TracePanel, { type TraceEntry } from "@/components/TracePanel";
 import type { BetaMessageParam, ChatDecision, ChatStreamEvent, McpServerInfo, Proposal } from "@/lib/chat-types";
 import { readNdjson } from "@/lib/ndjson";
+import Markdown from "@/components/Markdown";
 
 interface ChatItem {
   id: string;
@@ -224,6 +225,8 @@ export default function Chat({ model, servers }: ChatProps) {
                   <span className="typing" aria-label="Assistant is working">
                     Working
                   </span>
+                ) : item.role === "assistant" ? (
+                  <Markdown text={item.text} />
                 ) : (
                   item.text
                 )}

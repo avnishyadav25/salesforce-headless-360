@@ -665,3 +665,55 @@ summary:focus-visible {
     animation: none;
   }
 }
+
+/* Markdown in assistant messages and the brief (components/Markdown.tsx) */
+.message .md {
+  white-space: normal;
+}
+.md > :first-child {
+  margin-top: 0;
+}
+.md > :last-child {
+  margin-bottom: 0;
+}
+.md p,
+.md ul,
+.md ol,
+.md pre,
+.md .md-table {
+  margin: 0 0 10px;
+}
+.md h3,
+.md h4,
+.md h5 {
+  margin: 14px 0 6px;
+  font-size: 1em;
+}
+.md ul,
+.md ol {
+  padding-left: 20px;
+}
+.md code {
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.9em;
+}
+.md pre {
+  white-space: pre-wrap;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(127, 127, 127, 0.08);
+}
+.md .md-table {
+  overflow-x: auto;
+}
+.md table {
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+.md th,
+.md td {
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+}

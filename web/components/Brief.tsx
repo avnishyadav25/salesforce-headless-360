@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import TracePanel, { type TraceEntry } from "@/components/TracePanel";
 import type { BriefResponse, McpServerInfo, TraceEvent } from "@/lib/chat-types";
+import Markdown from "@/components/Markdown";
 
 interface BriefProps {
   model: string;
@@ -121,7 +122,7 @@ export default function Brief({ model, servers }: BriefProps) {
           {brief ? (
             <>
               <article className="message assistant brief" aria-label={`Meeting brief for ${brief.accountName}`}>
-                {brief.text}
+                <Markdown text={brief.text} />
               </article>
               <p className="subtle mono-small brief-meta">
                 {brief.model} · {(brief.durationMs / 1000).toFixed(1)} s · read-only

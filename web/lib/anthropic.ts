@@ -120,7 +120,10 @@ export function buildSystemPrompt(config: AppConfig): string {
         `- Server "${CUSTOM_SERVER}" is this org's custom hosted MCP server with business tools written in Apex. ` +
           `Read tools: ${config.mcp.customReadTools.join(", ") || "(none configured)"}; use getAccountHealth when the user ` +
           "asks how an account is doing. " +
-          `Write tools: ${config.mcp.customWriteTools.join(", ") || "(none configured)"}; createFollowUpTask creates follow-up tasks.`,
+          `Write tools: ${config.mcp.customWriteTools.join(", ") || "(none configured)"}; createFollowUpTask creates follow-up tasks. ` +
+          "Write tools stay hidden from you until approved, so use these exact arguments in the proposal: createFollowUpTask " +
+          'takes {"inputs": [{"recordId": "<Account, Opportunity, Case, Contact or Lead Id>", "subject": "...", ' +
+          '"dueDate": "YYYY-MM-DD" (optional), "priority": "High" | "Normal" | "Low" (optional)}]}. It uses recordId, not accountId.',
       ]
     : [];
 
@@ -143,7 +146,8 @@ export function buildSystemPrompt(config: AppConfig): string {
     "Changing data",
     "Write tools are switched off until the user approves one specific action. When the user asks you to create, " +
       "update or delete anything:",
-    "1. Use read tools to resolve what you need, such as record Ids.",
+    "1. Use read tools to resolve what you need, such as record Ids. For sobject-all writes, check field API names " +
+      "with getObjectSchema first, because the write tools' input schemas are hidden until approval.",
     `2. Call ${PROPOSE_WRITE_TOOL} once with the exact server, tool and arguments you will use and a one-sentence ` +
       "summary. Then stop.",
     "3. If the tool result starts with APPROVED, call exactly that tool with exactly those arguments, once, and report " +

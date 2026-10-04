@@ -115,6 +115,13 @@ describe("buildMessageParams", () => {
     expect(buildMcpServers(config, TOKEN)[0]?.name).toBe(SOBJECT_SERVER);
   });
 
+  it("tells the model the hidden write tool's argument names", () => {
+    const prompt = buildSystemPrompt(testConfig());
+    expect(prompt).toContain('"recordId"');
+    expect(prompt).toContain("not accountId");
+    expect(prompt).toContain("getObjectSchema first");
+  });
+
   it("states the approval rule and the prompt-injection rule in the system prompt", () => {
     const prompt = buildSystemPrompt(testConfig());
     expect(prompt).toContain(PROPOSE_WRITE_TOOL);
